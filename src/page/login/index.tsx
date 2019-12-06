@@ -2,7 +2,7 @@ import React from 'react';
 import { inject, observer } from 'mobx-react'
 import logo from './img/logo.svg';
 import './css/style.css';
-import AccontFrom from './component/account-form';
+import AccountForm from './component/account-form';
 
 @inject('loginStore')
 @observer
@@ -19,7 +19,7 @@ export default class DishList extends React.Component<any, any>{
                 alt=''
             />
           </div>
-          <AccontFrom />
+          <AccountForm />
         </div>
         <div style={{ width: '100%' }}>
           <div className="footer-copyright">
