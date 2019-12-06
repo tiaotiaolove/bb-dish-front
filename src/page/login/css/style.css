@@ -1,0 +1,146 @@
+@import '../../../css/variable.css';
+.login-box {
+  flex: 1;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #fff;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  align-content: space-between;
+}
+.login-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  height: 100%;
+}
+.logo {
+  width: 100%;
+  text-align: center;
+  margin-top: 20%;
+  margin-bottom: 30px;
+  height: 35px;
+}
+.logoImg {
+  height: 35px;
+}
+.login-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.inputBox {
+  border-bottom: 1px solid rgb(229, 229, 229);
+  height: 35px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 15px;
+  flex: 1;
+}
+
+.formInput {
+  font-size: 0.28rem;
+  line-height: 0.4rem;
+  &.sendCodeInput {
+    width: 55%;
+  }
+}
+
+.findCode {
+  text-align: right;
+  height: 0.28rem;
+  a {
+    color: #999;
+    font-size: 0.26rem;
+  }
+}
+
+.login-btnBox {
+  padding: 25px 15px;
+  text-align: center;
+}
+
+.login-btn {
+  height: 45px;
+  border-radius: 22.5px;
+  line-height: 40px;
+  width: 100%;
+  text-align: center;
+  color: #fff;
+  font-size: 0.32rem;
+  border: none;
+  background-color: #fa2550;
+  background-image: -moz-linear-gradient(
+    157deg,
+    rgb(249, 26, 83) 0%,
+    rgb(255, 82, 64) 100%
+  );
+  background-image: -webkit-linear-gradient(
+    157deg,
+    rgb(249, 26, 83) 0%,
+    rgb(255, 82, 64) 100%
+  );
+  background-image: -ms-linear-gradient(
+    157deg,
+    rgb(249, 26, 83) 0%,
+    rgb(255, 82, 64) 100%
+  );
+  box-shadow: 0 10px 20px 0 rgba(250, 37, 80, 0.26);
+}
+
+.register-account {
+  text-align: center;
+  font-size: 0.28rem;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: center;
+}
+.login-switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 60%;
+  margin: 0 auto;
+  span {
+    font-size: 0.28rem;
+    color: #999;
+    padding-bottom: 0.16rem;
+    &.curr {
+      color: #000;
+    }
+  }
+}
+.login-list {
+  padding: 0 40px;
+  display: flex;
+  justify-content: space-around;
+  margin-top: 10px;
+  a {
+    text-align: center;
+    img {
+      width: 1.2rem;
+      height: 1.2rem;
+    }
+    span {
+      color: $theme-color;
+      font-size: 0.24rem;
+      display: block;
+    }
+  }
+}
+.sendBtn {
+  font-size: 0.7rem;
+  color: $theme-color;
+  border-left: 1px solid #e5e5e5;
+  padding-left: 9px;
+}
