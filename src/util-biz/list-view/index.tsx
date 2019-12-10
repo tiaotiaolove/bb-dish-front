@@ -185,6 +185,8 @@ export default class MyListView extends Component<IMyListViewProps, any> {
       });
       if (handleResp(dishListRes)) {
         this._setDataListState(dishListRes.context, concatFlag);
+      } else {
+        this._setDataListState({list: [], hasNextPage: false}, concatFlag);
       }
     }
   };
