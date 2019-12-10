@@ -1,6 +1,7 @@
 import React, { Component, ReactText } from 'react';
 import { ListView, PullToRefresh } from "antd-mobile";
 import { axiosFetch, handleResp } from "../../util/common/http";
+import DataLoading from "../loading-data";
 
 export interface IMyListViewProps{
   // 渲染行的方法
@@ -55,8 +56,10 @@ export default class MyListView extends Component<IMyListViewProps, any> {
       innerDataList: innerDataListTmp,
       // ListView的数据源
       dataSource: new ListView.DataSource({rowHasChanged: (row1: any, row2: any) => row1 !== row2}).cloneWithRows(innerDataListTmp),
-      // 下一页数据是否正在加载
-      isLoading: false,
+      // 是否正在加载第一个分页数据
+      loadingFirstPage: false,
+      // 是否正在加载下一页数据
+      loadingNextPage: false,
       // 是否还有下一个分页数据
       hasNextPage: true,
       // 是否正在上拉刷新
@@ -65,7 +68,7 @@ export default class MyListView extends Component<IMyListViewProps, any> {
   }
 
   async componentDidMount() {
-    await this._onPullRefresh();
+    await this._onInitRefresh();
   }
 
   /**
@@ -80,7 +83,7 @@ export default class MyListView extends Component<IMyListViewProps, any> {
       || prevProps.pageSize !== this.props.pageSize
     )) {
       // 若请求地址,请求参数变化时, 刷新页面重新请求第一页数据
-      await this._onPullRefresh();
+      await this._onInitRefresh();
     } else if (this.props.dataResource && prevProps.dataResource &&
       this.props.dataResource.list !== prevProps.dataResource.list
     ) {
@@ -90,10 +93,13 @@ export default class MyListView extends Component<IMyListViewProps, any> {
   }
 
   render() {
-    const { dataSource } = this.state;
+    const { loadingFirstPage, dataSource } = this.state;
     const { renderRow } = this.props;
-    return (
-      <ListView
+    if (loadingFirstPage) {
+      return <DataLoading key={'loadingPage'}/>;
+    } else {
+      return (<ListView
+        key={'listView'}
         dataSource={dataSource}
         renderRow={renderRow}
         renderFooter={this._renderFooter}
@@ -102,8 +108,8 @@ export default class MyListView extends Component<IMyListViewProps, any> {
         onEndReached={this._onEndReached}
         onEndReachedThreshold={10}
         pullToRefresh={this._pullToRefresh()}
-      />
-    );
+      />);
+    }
   }
 
   /**
@@ -111,10 +117,10 @@ export default class MyListView extends Component<IMyListViewProps, any> {
    * @private
    */
   _onEndReached = async () => {
-    const { isLoading, hasNextPage, refreshing } = this.state;
-    // 有下一页  且 上次的下一页已加载完毕 且 上拉刷新已经结束, 才可以查询下一页数据
-    if (hasNextPage && !isLoading && !refreshing) {
-      this.setState({ isLoading: true });
+    const { loadingFirstPage, loadingNextPage, hasNextPage, refreshing } = this.state;
+    // 有下一页  且 上次的下一页已加载完毕 且 上拉刷新已经结束 且 第一页已加载完毕, 才可以查询下一页数据(即没有任何数据请求时,才可操作)
+    if (hasNextPage && !loadingNextPage && !refreshing && !loadingFirstPage) {
+      this.setState({ loadingNextPage: true });
       // 判断从什么地方获取dataSource
       if (this.props.url) {
         this.pageNum++;
@@ -126,14 +132,32 @@ export default class MyListView extends Component<IMyListViewProps, any> {
   };
 
   /**
+   * 初始化刷新,加载第一页数据(区别于上拉刷新)
+   * 场景: 1.第一次进入分页列表时 2.切换的查询条件时
+   * @private
+   */
+  _onInitRefresh = async () => {
+    await this._refresh({ loadingFirstPage: true });
+  };
+
+  /**
    * 上拉刷新,重新加载第一页数据
    * @private
    */
   _onPullRefresh = async () => {
-    const { isLoading, refreshing } = this.state;
-    // 上次的下一页已加载完毕 且 上拉刷新已经结束, 才可以上拉刷新
-    if (!isLoading && !refreshing) {
-      this.setState({ refreshing: true });
+    await this._refresh({ refreshing: true });
+  };
+
+  /**
+   * 刷新,重新请求第一页数据
+   * 以供各种场景的重新请求
+   * @private
+   */
+  _refresh = async (resetState: any) => {
+    const { loadingFirstPage, loadingNextPage, refreshing } = this.state;
+    // 上次的下一页已加载完毕 且 上拉刷新已经结束 且 第一页已加载完毕, 才可以上拉刷新(即没有任何数据请求时,才可操作)
+    if (!loadingNextPage && !refreshing && !loadingFirstPage) {
+      this.setState(resetState);
       // 判断从什么地方获取dataSource
       if (this.props.url) {
         this.pageNum = 1;
@@ -166,7 +190,7 @@ export default class MyListView extends Component<IMyListViewProps, any> {
   };
 
   /**
-   * 设置dataSource, isLoading, refreshing, hasNextPage等state
+   * 设置dataSource, loadingFirstPage, loadingNextPage, refreshing, hasNextPage等state
    * @param dataListRes
    * @param concatFlag 是否拼接dataList(true:获取下一页数据场景; false:上拉获取第一页数据场景)
    * @private
@@ -176,7 +200,8 @@ export default class MyListView extends Component<IMyListViewProps, any> {
     this.setState({
       innerDataList: innerDataListTmp,
       dataSource: this.state.dataSource.cloneWithRows(innerDataListTmp),
-      isLoading: false,
+      loadingFirstPage: false,
+      loadingNextPage: false,
       hasNextPage: dataListRes.hasNextPage,
       refreshing: false,
     });
@@ -189,15 +214,16 @@ export default class MyListView extends Component<IMyListViewProps, any> {
   _renderFooter = () => {
     let footText = null;
 
-    const { isLoading, hasNextPage } = this.state;
-    if (isLoading && hasNextPage) {
-      footText = 'Loading...';
+    const { loadingNextPage, hasNextPage } = this.state;
+    if (loadingNextPage && hasNextPage) {
+      footText = <img src={require('../loading/img/loading.svg')} alt={"footerLoading"} width='50px' height='auto'/>;
+    } else if (hasNextPage) {
+      footText = <p style={{ padding: 10 }}>下拉加载更多</p>;
     } else if (!hasNextPage) {
-      footText = 'no items';
+      footText = <p style={{ padding: 10 }}>没有更多了</p>;
     }
-
     return (
-      <div style={{ padding: 30, textAlign: 'center' }}>
+      <div style={{ textAlign: 'center' }}>
         {footText}
       </div>
     );
