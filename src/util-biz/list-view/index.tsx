@@ -2,6 +2,7 @@ import React, { Component, ReactText } from 'react';
 import { ListView, PullToRefresh } from "antd-mobile";
 import { axiosFetch, handleResp } from "../../util/common/http";
 import DataLoading from "../loading-data";
+import "./css/style.css";
 
 export interface IMyListViewProps{
   // 分页请求的url
@@ -79,9 +80,13 @@ export default class MyListView extends Component<IMyListViewProps, any> {
     const { renderRow } = this.props;
       return (<>
         <DataLoading style={{display: loadingFirstPage ? '' : 'none'}} key={'loadingPage'}/>
+        <div className="list-none" style={{display: !loadingFirstPage && this.state.innerDataList.length <= 0 ? '' : 'none'}} >
+          <img width="60%" height="auto" src={require("./img/list-none.png")} alt="list-none"/>
+          <p>暂无数据</p>
+        </div>
         <ListView
           key={'listView'}
-          style={{display: !loadingFirstPage ? '' : 'none'}}
+          style={{display: !loadingFirstPage && this.state.innerDataList.length > 0 ? '' : 'none'}}
           dataSource={dataSource}
           renderRow={renderRow}
           renderFooter={this._renderFooter}
