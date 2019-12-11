@@ -4,12 +4,6 @@ import { axiosFetch, handleResp } from "../../util/common/http";
 import DataLoading from "../loading-data";
 
 export interface IMyListViewProps{
-  // 渲染行的方法
-  renderRow: (rowData: any, sectionID: string | number, rowID: string | number, highlightRow?: boolean) => React.ReactElement<any>;
-
-  /**
-   * 传入url,分页列表数据完全由MyListView内部处理
-   */
   // 分页请求的url
   url?: string;
   // 分页请求的请求类型
@@ -18,16 +12,8 @@ export interface IMyListViewProps{
   urlParams?: any;
   // 分页大小
   pageSize?: number;
-
-  /**
-   * 传入dataResource,分页列表数据完全由父组件传入
-   */
-  // 数据列表
-  dataResource?: DataListResult;
-  // 提供下一页数据列表的回调方法(父组件传入)
-  onEndReached?: () => DataListResult;
-  // 上拉刷新场景时,提供第一页数据列表的回调方法(父组件传入)
-  onRefresh?: () => DataListResult;
+  // 渲染行的方法
+  renderRow: (rowData: any, sectionID: string | number, rowID: string | number, highlightRow?: boolean) => React.ReactElement<any>;
 }
 
 export interface DataListResult {
@@ -51,11 +37,10 @@ export default class MyListView extends Component<IMyListViewProps, any> {
     super(props);
 
     // 初始化state
-    const innerDataListTmp = props.dataResource ? (props.dataResource.list || []) : [];
     this.state = {
-      innerDataList: innerDataListTmp,
+      innerDataList: [],
       // ListView的数据源
-      dataSource: new ListView.DataSource({rowHasChanged: (row1: any, row2: any) => row1 !== row2}).cloneWithRows(innerDataListTmp),
+      dataSource: new ListView.DataSource({rowHasChanged: (row1: any, row2: any) => row1 !== row2}).cloneWithRows([]),
       // 是否正在加载第一个分页数据
       loadingFirstPage: false,
       // 是否正在加载下一页数据
@@ -68,11 +53,13 @@ export default class MyListView extends Component<IMyListViewProps, any> {
   }
 
   async componentDidMount() {
+    // render后执行一次初始化查询
     await this._onInitRefresh();
   }
 
   /**
    * 替代的componentWillReceiveProps生命周期方法的思路之一(render之后)
+   *   当请求相关信息变更时,触发refresh
    * @param prevProps render之前的props
    * @param prevState render之前的state
    */
@@ -84,32 +71,27 @@ export default class MyListView extends Component<IMyListViewProps, any> {
     )) {
       // 若请求地址,请求参数变化时, 刷新页面重新请求第一页数据
       await this._onInitRefresh();
-    } else if (this.props.dataResource && prevProps.dataResource &&
-      this.props.dataResource.list !== prevProps.dataResource.list
-    ) {
-      // 若父组件传入的新dataResource.list 与 之前的旧dataResource.list 不一致时
-      this._setDataListState(this.props.dataResource, false);
     }
   }
 
   render() {
     const { loadingFirstPage, dataSource } = this.state;
     const { renderRow } = this.props;
-    if (loadingFirstPage) {
-      return <DataLoading key={'loadingPage'}/>;
-    } else {
-      return (<ListView
-        key={'listView'}
-        dataSource={dataSource}
-        renderRow={renderRow}
-        renderFooter={this._renderFooter}
-        renderSeparator={this._renderSeparator}
-        useBodyScroll
-        onEndReached={this._onEndReached}
-        onEndReachedThreshold={10}
-        pullToRefresh={this._pullToRefresh()}
-      />);
-    }
+      return (<>
+        <DataLoading style={{display: loadingFirstPage ? '' : 'none'}} key={'loadingPage'}/>
+        <ListView
+          key={'listView'}
+          style={{display: !loadingFirstPage ? '' : 'none'}}
+          dataSource={dataSource}
+          renderRow={renderRow}
+          renderFooter={this._renderFooter}
+          renderSeparator={this._renderSeparator}
+          useBodyScroll
+          onEndReached={this._onEndReached}
+          onEndReachedThreshold={10}
+          pullToRefresh={this._pullToRefresh()}
+        />
+      </>);
   }
 
   /**
@@ -121,13 +103,8 @@ export default class MyListView extends Component<IMyListViewProps, any> {
     // 有下一页  且 上次的下一页已加载完毕 且 上拉刷新已经结束 且 第一页已加载完毕, 才可以查询下一页数据(即没有任何数据请求时,才可操作)
     if (hasNextPage && !loadingNextPage && !refreshing && !loadingFirstPage) {
       this.setState({ loadingNextPage: true });
-      // 判断从什么地方获取dataSource
-      if (this.props.url) {
-        this.pageNum++;
-        await this._getDataFromUrl(true);
-      } else if (this.props.onEndReached) {
-        this.props.onEndReached();
-      }
+      this.pageNum++;
+      await this._getDataFromUrl(true);
     }
   };
 
@@ -159,12 +136,8 @@ export default class MyListView extends Component<IMyListViewProps, any> {
     if (!loadingNextPage && !refreshing && !loadingFirstPage) {
       this.setState(resetState);
       // 判断从什么地方获取dataSource
-      if (this.props.url) {
-        this.pageNum = 1;
-        await this._getDataFromUrl(false);
-      } else if (this.props.onRefresh) {
-        this.props.onRefresh();
-      }
+      this.pageNum = 1;
+      await this._getDataFromUrl(false);
     }
   };
 
@@ -174,20 +147,18 @@ export default class MyListView extends Component<IMyListViewProps, any> {
    * @private
    */
   _getDataFromUrl = async (concatFlag:boolean = true) => {
-    if (this.props.url) {
-      const dishListRes = await axiosFetch(this.props.url, {
-        method: this.props.method,
-        data: {
-          pageNum: this.pageNum,
-          pageSize: this.props.pageSize,
-          ...this.props.urlParams
-        },
-      });
-      if (handleResp(dishListRes)) {
-        this._setDataListState(dishListRes.context, concatFlag);
-      } else {
-        this._setDataListState({list: [], hasNextPage: false}, concatFlag);
-      }
+    const dishListRes = await axiosFetch(this.props.url || '', {
+      method: this.props.method,
+      data: {
+        pageNum: this.pageNum,
+        pageSize: this.props.pageSize,
+        ...this.props.urlParams
+      },
+    });
+    if (handleResp(dishListRes)) {
+      this._setDataListState(dishListRes.context, concatFlag);
+    } else {
+      this._setDataListState({list: [], hasNextPage: false}, concatFlag);
     }
   };
 
