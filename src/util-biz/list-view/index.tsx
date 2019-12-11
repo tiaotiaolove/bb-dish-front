@@ -80,13 +80,9 @@ export default class MyListView extends Component<IMyListViewProps, any> {
     const { renderRow } = this.props;
       return (<>
         <DataLoading style={{display: loadingFirstPage ? '' : 'none'}} key={'loadingPage'}/>
-        <div className="list-none" style={{display: !loadingFirstPage && this.state.innerDataList.length <= 0 ? '' : 'none'}} >
-          <img width="60%" height="auto" src={require("./img/list-none.png")} alt="list-none"/>
-          <p>暂无数据</p>
-        </div>
         <ListView
           key={'listView'}
-          style={{display: !loadingFirstPage && this.state.innerDataList.length > 0 ? '' : 'none'}}
+          style={{display: !loadingFirstPage? '' : 'none'}}
           dataSource={dataSource}
           renderRow={renderRow}
           renderFooter={this._renderFooter}
@@ -190,21 +186,27 @@ export default class MyListView extends Component<IMyListViewProps, any> {
    * @private
    */
   _renderFooter = () => {
-    let footText = null;
-
     const { loadingNextPage, hasNextPage } = this.state;
     if (loadingNextPage && hasNextPage) {
-      footText = <img src={require('../loading/img/loading.svg')} alt={"footerLoading"} width='50px' height='auto'/>;
-    } else if (hasNextPage) {
-      footText = <p style={{ padding: 10 }}>下拉加载更多</p>;
-    } else if (!hasNextPage) {
-      footText = <p style={{ padding: 10 }}>没有更多了</p>;
+      // 正在加载更多数据
+      return <div style={{ textAlign: 'center'}}><img src={require('../loading/img/loading.svg')} alt={"footerLoading"} width='50px' height='auto'/></div>;
+
+    } else if (!loadingNextPage && hasNextPage) {
+      // 前面几页数据已加载完毕,且还有下一页数据
+      return <div style={{ textAlign: 'center', padding: 10 }}>下拉加载更多</div>;
+
+    } else if (!hasNextPage && this.state.innerDataList.length > 0) {
+      // 前面几页有数据,但没有更多了
+      return <div style={{ textAlign: 'center', padding: 10 }}>没有更多了</div>;
+
+    } else if (!hasNextPage && this.state.innerDataList.length <= 0) {
+      // 第一页数据都没有
+      return <div className="list-none">
+        <img width="60%" height="auto" src={require("./img/list-none.png")} alt="list-none"/>
+        <p>暂无数据</p>
+      </div>;
     }
-    return (
-      <div style={{ textAlign: 'center' }}>
-        {footText}
-      </div>
-    );
+    return <></>;
   };
 
   /**
