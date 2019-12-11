@@ -2,12 +2,13 @@ import React, { Component } from 'react';
 import { Redirect, Route, RouteProps } from 'react-router-dom';
 import cache from "../../util/common/cache";
 import { isLogin } from "../login/loginUtil";
+import Bottom from "../bottom";
 
 export interface MyRouteProps extends RouteProps{
   key: any;
   title?: string;
   withoutLogin?: boolean;
-  hasBottom?: boolean;
+  bottomCurrTab?: string;
 }
 
 /**
@@ -19,7 +20,7 @@ export default class MyRoute extends Component<MyRouteProps, any> {
     const {
       title,
       withoutLogin,
-      hasBottom,
+      bottomCurrTab,
       location,
       ...rest
     } = this.props;
@@ -27,9 +28,12 @@ export default class MyRoute extends Component<MyRouteProps, any> {
 
     // 1.无需登录 或 已登录,直接跳转对应路由
     if (withoutLogin || isLogin()) {
-      return <Route
-          {...rest}
-      />
+      return (<>
+        <Route
+            {...rest}
+        />
+        <Bottom currTab={bottomCurrTab} hidden={!bottomCurrTab}/>
+      </>);
     } else {
       // 2.拦截准备访问的路由, 重定向到登陆页, 等登录成功后自动跳转到拦截的路由
       sessionStorage.setItem(cache.TARGET_PAGE, JSON.stringify(location));

@@ -3,8 +3,8 @@ import MyLoading from './util-biz/loading';
 
 /**
  * 路由配置文件
- *   withoutLogin  true:可以直接访问,无需登陆; false:需要登录; 默认false
- *   hasBottom     true:有底部导航栏; false:没有底部导航栏; 默认false
+ *   withoutLogin:  true:可以直接访问,无需登陆; false:需要登录; 默认false
+ *   bottomCurrTab: 底部导航栏应选中哪个;string类型,若没有底部导航栏,则无此属性
  */
 const routers = [
   {
@@ -15,7 +15,7 @@ const routers = [
       loader: () => import('./page/dish-list'),
       loading: MyLoading
     }),
-    hasBottom: true
+    bottomCurrTab: "index",
   },
   {
     path: '/upload-dish',
@@ -25,7 +25,7 @@ const routers = [
       loader: () => import('./page/dish-list'),
       loading: MyLoading
     }),
-    hasBottom: true
+    bottomCurrTab: "upload",
   },
   {
     path: '/user-center',
@@ -35,7 +35,7 @@ const routers = [
       loader: () => import('./page/dish-list'),
       loading: MyLoading
     }),
-    hasBottom: true
+    bottomCurrTab: "mine",
   },
   {
     path: '/user-info',
@@ -45,7 +45,7 @@ const routers = [
       loader: () => import('./page/dish-list'),
       loading: MyLoading
     }),
-    hasBottom: true
+    bottomCurrTab: "mine",
   },
   {
     path: '/login',
@@ -56,7 +56,6 @@ const routers = [
       loading: MyLoading
     }),
     withoutLogin: true,
-    hasBottom: false
   },
 
   /*===================== 不配置path，什么都匹配不到的情况匹配这个，要放最后 =====================*/
