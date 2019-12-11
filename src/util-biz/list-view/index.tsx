@@ -42,7 +42,7 @@ export default class MyListView extends Component<IMyListViewProps, any> {
       // ListView的数据源
       dataSource: new ListView.DataSource({rowHasChanged: (row1: any, row2: any) => row1 !== row2}).cloneWithRows([]),
       // 是否正在加载第一个分页数据
-      loadingFirstPage: false,
+      loadingFirstPage: true,
       // 是否正在加载下一页数据
       loadingNextPage: false,
       // 是否还有下一个分页数据
@@ -99,9 +99,9 @@ export default class MyListView extends Component<IMyListViewProps, any> {
    * @private
    */
   _onEndReached = async () => {
-    const { loadingFirstPage, loadingNextPage, hasNextPage, refreshing } = this.state;
+    const { loadingNextPage, hasNextPage, refreshing } = this.state;
     // 有下一页  且 上次的下一页已加载完毕 且 上拉刷新已经结束 且 第一页已加载完毕, 才可以查询下一页数据(即没有任何数据请求时,才可操作)
-    if (hasNextPage && !loadingNextPage && !refreshing && !loadingFirstPage) {
+    if (hasNextPage && !loadingNextPage && !refreshing) {
       this.setState({ loadingNextPage: true });
       this.pageNum++;
       await this._getDataFromUrl(true);
@@ -131,9 +131,9 @@ export default class MyListView extends Component<IMyListViewProps, any> {
    * @private
    */
   _refresh = async (resetState: any) => {
-    const { loadingFirstPage, loadingNextPage, refreshing } = this.state;
-    // 上次的下一页已加载完毕 且 上拉刷新已经结束 且 第一页已加载完毕, 才可以上拉刷新(即没有任何数据请求时,才可操作)
-    if (!loadingNextPage && !refreshing && !loadingFirstPage) {
+    const { loadingNextPage, refreshing } = this.state;
+    // 上次的下一页已加载完毕 且 上拉刷新已经结束, 才可以上拉刷新(即没有任何数据请求时,才可操作)
+    if (!loadingNextPage && !refreshing) {
       this.setState(resetState);
       // 判断从什么地方获取dataSource
       this.pageNum = 1;
