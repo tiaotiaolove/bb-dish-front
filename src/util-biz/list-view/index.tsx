@@ -2,7 +2,7 @@ import React, { Component, ReactText } from 'react';
 import { ListView, PullToRefresh } from "antd-mobile";
 import { axiosFetch, handleResp } from "../../util/common/http";
 import DataLoading from "../loading-data";
-import "./css/style.css";
+import "./css/style.less";
 
 export interface IMyListViewProps{
   // 分页请求的url
@@ -216,10 +216,7 @@ export default class MyListView extends Component<IMyListViewProps, any> {
   _renderSeparator = (sectionID: ReactText, rowID: ReactText) => (
     <div
       key={`${sectionID}-${rowID}`}
-      style={{
-        backgroundColor: '#F5F5F9',
-        borderBottom: '1px solid #ECECED',
-      }}
+      style={{borderBottom: '1px solid #ECECEC'}}
     />
   );
 

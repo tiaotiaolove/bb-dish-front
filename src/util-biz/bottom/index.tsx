@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { TabBar } from "antd-mobile";
-import "./css/style.css";
+import "./css/style.less";
 import history from "../../util/router/history";
 
 interface BottomProps {

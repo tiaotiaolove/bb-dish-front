@@ -1,7 +1,7 @@
 import React from 'react';
 import { inject, observer } from 'mobx-react'
 import logo from './img/logo.svg';
-import './css/style.css';
+import './css/style.less';
 import AccountForm from './component/account-form';
 
 @inject('loginStore')

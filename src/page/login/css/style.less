@@ -1,9 +1,10 @@
-@import '../../../css/variable.css';
+@import "../../../css/variable";
+
 .login-box {
   flex: 1;
   flex-direction: column;
   min-height: 100vh;
-  background-color: #fff;
+  background-color: @theme-background;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -59,7 +60,7 @@
   text-align: right;
   height: 0.28rem;
   a {
-    color: #999;
+    color: @gray-color-9;
     font-size: 0.26rem;
   }
 }
@@ -75,10 +76,10 @@
   line-height: 40px;
   width: 100%;
   text-align: center;
-  color: #fff;
+  color: @white;
   font-size: 0.32rem;
   border: none;
-  background-color: #fa2550;
+  background-color: @theme-background;
   background-image: -moz-linear-gradient(
     157deg,
     rgb(249, 26, 83) 0%,
@@ -113,11 +114,8 @@
   margin: 0 auto;
   span {
     font-size: 0.28rem;
-    color: #999;
+    color: @gray-color-9;
     padding-bottom: 0.16rem;
-    &.curr {
-      color: #000;
-    }
   }
 }
 .login-list {
@@ -132,7 +130,7 @@
       height: 1.2rem;
     }
     span {
-      color: $theme-color;
+      color: @theme-color;
       font-size: 0.24rem;
       display: block;
     }
@@ -140,7 +138,7 @@
 }
 .sendBtn {
   font-size: 0.7rem;
-  color: $theme-color;
+  color: @theme-color;
   border-left: 1px solid #e5e5e5;
   padding-left: 9px;
 }

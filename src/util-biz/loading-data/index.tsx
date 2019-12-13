@@ -1,5 +1,5 @@
 import React from 'react';
-import './css/style.css';
+import './css/style.less';
 
 export default class DataLoading extends React.Component<any, any> {
 

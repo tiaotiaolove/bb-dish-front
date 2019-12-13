@@ -1,0 +1,35 @@
+@import "./variable.less";
+
+* {
+    margin:0;
+    padding:0;
+}
+
+/*
+ * vw表示1%的屏幕宽度,而设计稿宽度通常是750px,屏幕一共是100vw,那么1px = 0.13333333vw;
+ * 同时rem是相对html元素的字体大小,为了方便计算,我们取html的font-size=100px,根据上面的计算结果,得出100px = 13.333333vw
+ * 所以，我们让1rem = 100px = 13.333333vw
+ * 然后各种属性都使用rem,就能适配不同手机屏幕分辨率了
+ */
+html {
+    font-size: 13.333333vw !important;
+}
+
+body {
+    font-family: Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: @theme-background;
+    color: @gray-color-3;
+    line-height: 1.15;
+    text-align: center;
+}
+
+img, fieldset {
+    border:0 none;
+}
+
+a, ins {
+    text-decoration:none;
+    color: inherit;
+}

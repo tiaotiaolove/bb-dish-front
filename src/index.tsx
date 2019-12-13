@@ -7,7 +7,7 @@ import stores from './store';
 import { routers } from './router';
 import MyRoute from './util-biz/route';
 import history from "./util/router/history";
-import './css/index.css';
+import './css/index.less';
 
 const BBDishH5: React.FC = () => {
     return (

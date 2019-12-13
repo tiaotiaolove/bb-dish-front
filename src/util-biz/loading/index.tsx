@@ -1,6 +1,6 @@
 import React from 'react';
 import Loadable from  'react-loadable';
-import './css/style.css';
+import './css/style.less';
 
 export default class MyLoading extends React.Component<Loadable.LoadingComponentProps, any> {
 

@@ -1,58 +1,53 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { inject, observer } from "mobx-react";
-import noneImg from '../img/none.png';
-import history from "../../../util/router/history";
+import {Flex} from "antd-mobile";
+
+interface IDishItemProps {
+  dish: {
+    dishId: number;
+    season: number;
+    oilyDegree: number;
+    dishType: number | null;
+    dishName: string;
+    dishDesc: string | null;
+    dishPic: string | null;
+    hotGrade: number;
+  }
+}
 
 @inject('dishListStore')
 @observer
-export default class DishItem extends Component<any, any> {
+export default class DishItem extends Component<IDishItemProps, any> {
 
   render() {
     let { dish } = this.props;
     return (
-      <div className="ships">
-        <div className="dish-item">
-          <Link to={`/dish-detail/${dish.dishId}`}>
-            <div className="dish-head">
-              <div className="dish-head-num">
-                {dish.hotGrade > 1 && <span>赞</span>}
-                <div className="dish-storeName">
+      <div className="list-item-box" key={dish.dishId}>
+        <Link to={`/dish-detail/${dish.dishId}`}>
+          <Flex className="list-item">
+            <div className="list-item-left">
+              {
+                dish.dishPic ? <img src={dish.dishPic} alt="dishImg"/> : <i className="dishfont middle-none-img">&#xe669;</i>
+              }
+            </div>
+
+            <Flex className="list-item-right" direction="column" justify="between" align="start">
+              <h3 className="text-h3 nowrap-text">{dish.dishName}</h3>
+              <p className="text-brief nowrap-text">{dish.dishDesc}</p>
+              <Flex className="item-line" justify="between">
+                <Flex>
+                  {this._getSeasonDesc(dish.season)}
                   {this._getOilyDegreeDesc(dish.oilyDegree)}
-                  {dish.dishName}
+                  {this._getDishType(dish.oilyDegree)}
+                </Flex>
+                <div className="hot-grade">
+                  {dish.hotGrade}
                 </div>
-              </div>
-              <div className="status">{this._getDishType(dish.dishType)}</div>
-            </div>
-            <div className="limit-img ship-img">
-              <div className="img-content">
-                <img
-                  className="img-item"
-                  src={dish.dishPic ? dish.dishPic : noneImg}
-                  alt="dishPic"
-                />
-              </div>
-              <div className="right-context">
-                <div className="total-num">热度:{dish.hotGrade}</div>
-                <i className="iconfont icon-jiantou1" />
-              </div>
-            </div>
-          </Link>
-          <div className="bottom">
-            <div className="price">{this._getSeasonDesc(dish.season)}</div>
-            <div className="botton-box">
-              <div
-                className={'btn btn-ghost btn-small'}
-                onClick={() => {
-                  history.push(`/dish-detail/${dish.dishId}`);
-                }}
-              >
-                查看详情
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="bot-line" />
+              </Flex>
+            </Flex>
+          </Flex>
+        </Link>
       </div>
     );
   }
@@ -63,7 +58,7 @@ export default class DishItem extends Component<any, any> {
    */
   _getOilyDegreeDesc = (oilyDegree: number) => {
     const oilyMap: any = { 0: '纯素', 1: '小荤', 2: '大荤' };
-    return <div className="self-sales">{oilyMap[oilyDegree]}</div>;
+    return <div className="oily-degree">{oilyMap[oilyDegree]}</div>;
   };
 
   /**
@@ -72,13 +67,13 @@ export default class DishItem extends Component<any, any> {
    */
   _getDishType = (dishType: number) => {
     const typeMap: any = {
-      0: '凉菜类',
-      1: '炒菜类',
-      2: '红烧类',
-      3: '汤类',
-      4: '果盘类'
+      0: '凉菜',
+      1: '炒菜',
+      2: '红烧',
+      3: '汤羹',
+      4: '果盘'
     };
-    return <div className="self-sales">{typeMap[dishType]}</div>;
+    return <div className="dish-type">{typeMap[dishType]}</div>;
   };
 
   /**
@@ -86,7 +81,7 @@ export default class DishItem extends Component<any, any> {
    * @private
    */
   _getSeasonDesc = (season: number) => {
-    const seasonMap: any = { 0: '春', 1: '夏', 2: '秋', 3: '冬' };
-    return <div className="self-sales">{seasonMap[season]}</div>;
+    const seasonMap: any = { 0: '春季', 1: '夏季', 2: '秋季', 3: '冬季' };
+    return <div className="season">{seasonMap[season]}</div>;
   };
 }
